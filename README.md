@@ -1,59 +1,133 @@
 # Rel.AI OfficeCLI Extension
 
-Rel.AI extension source for [OfficeCLI](https://github.com/iOfficeAI/OfficeCLI).
+[![Validate extension](https://github.com/Kyne0328/rel-ai-extension-officecli/actions/workflows/validate.yml/badge.svg)](https://github.com/Kyne0328/rel-ai-extension-officecli/actions/workflows/validate.yml)
 
-This repository contains the Rel.AI adapter and workflow instructions. It does **not** vendor OfficeCLI or run a separate agent/MCP server. Rel.AI remains the authorization, workspace, execution, browser, and audit boundary.
+This repository contains the Rel.AI extension for [OfficeCLI](https://github.com/iOfficeAI/OfficeCLI).
 
-## What it adds
+The extension lets Rel.AI use OfficeCLI for Word, Excel, and PowerPoint work.
+The extension does not contain OfficeCLI binaries.
 
-The extension teaches Rel.AI/ChatGPT to use OfficeCLI for Word, Excel, and PowerPoint work, including:
+## Status
 
-- structured inspection and edits for `.docx`, `.xlsx`, and `.pptx`
-- issue detection and validation
-- layout-sensitive visual review through `officecli watch`
-- higher-level document operations before raw OOXML fallbacks
-- managed CLI installation when OfficeCLI is not already available
+| Item | Value |
+| --- | --- |
+| Extension ID | `officecli` |
+| Extension version | `1.0.0` |
+| Type | `cli` |
+| Rel.AI version | `>=1.1.2 <2.0.0` |
+| OfficeCLI version | `1.0.151` |
+| Managed install | Yes |
 
-## Auto-install model
+## What it does
 
-`relai-extension.json` declares platform/architecture-specific OfficeCLI binaries from the official `iOfficeAI/OfficeCLI` GitHub releases.
+The extension supports these tasks:
 
-Rel.AI:
+- Inspect and edit `.docx`, `.xlsx`, and `.pptx` files.
+- Check document issues.
+- Validate Office files.
+- Render files for visual checks.
+- Use `officecli watch` for local preview.
+- Use high-level document commands before raw OOXML commands.
 
-1. selects the artifact for the current platform and architecture
-2. downloads it over HTTPS
-3. verifies the pinned SHA-256 hash
-4. installs it under Rel.AI-owned local state
-5. exposes it to Rel.AI child processes without modifying the user's system PATH
+## Supported platforms
 
-The extension currently pins OfficeCLI **v1.0.151**.
+The manifest contains a verified OfficeCLI artifact for each target.
 
-Managed invocations set `OFFICECLI_SKIP_UPDATE=1` so the reviewed binary does not self-update in place. Updates should be published by changing the extension manifest and its pinned hashes.
+| Platform | x64 | arm64 |
+| --- | --- | --- |
+| Windows | Yes | Yes |
+| macOS | Yes | Yes |
+| Linux | Yes | Yes |
 
-## Files
+## Installation model
 
-- `relai-extension.json` — Rel.AI extension manifest and pinned OfficeCLI artifacts
-- `SKILL.md` — reusable workflow instructions
-- `agents/openai.yaml` — ChatGPT Skill UI metadata
-- `.gitattributes` — stable LF line endings for reproducible hashes
-- `.github/workflows/validate.yml` — repository integrity checks
+Rel.AI reads this extension from the public catalog.
 
-## Publishing
-
-The public Rel.AI catalog lives separately at:
+The catalog repository is:
 
 https://github.com/Kyne0328/rel-ai-extensions
 
-The catalog entry should point to:
+The public manifest is:
 
 https://raw.githubusercontent.com/Kyne0328/rel-ai-extension-officecli/main/relai-extension.json
 
-The extension source stays in this repository; the catalog repository contains only the catalog/specification/examples/validator.
+If OfficeCLI is not available, Rel.AI can install the declared binary.
+
+Rel.AI uses this procedure:
+
+1. Select the artifact for the current platform and architecture.
+2. Download the artifact from the official OfficeCLI GitHub release.
+3. Check the pinned SHA-256 value.
+4. Install the binary in Rel.AI local data.
+5. Add the managed binary directory to Rel.AI child process PATH.
+
+Rel.AI does not change the system PATH.
+
+## Update model
+
+The extension pins OfficeCLI `v1.0.151`.
+
+Managed commands set `OFFICECLI_SKIP_UPDATE=1`.
+OfficeCLI does not update the managed binary itself.
+
+To publish a new OfficeCLI version:
+
+1. Update the artifact URLs.
+2. Update all SHA-256 values.
+3. Increase the extension version.
+4. Update `CHANGELOG.md`.
+5. Run the repository checks.
+6. Update the public catalog entry.
+
+## Repository layout
+
+```text
+rel-ai-extension-officecli/
+├── relai-extension.json
+├── SKILL.md
+├── agents/
+│   └── openai.yaml
+├── scripts/
+│   └── validate.mjs
+├── .github/
+│   └── workflows/
+│       └── validate.yml
+├── .gitattributes
+├── CHANGELOG.md
+└── README.md
+```
+
+`relai-extension.json` is the package manifest.
+`SKILL.md` contains the Rel.AI workflow instructions.
+
+## Validation
+
+Run:
+
+```bash
+node scripts/validate.mjs
+```
+
+The check verifies the manifest structure and local package hashes.
+GitHub Actions runs the same check on pushes and pull requests.
+
+The public catalog also downloads this manifest and checks the published package data.
+
+## Security
+
+The extension does not run an upstream install script.
+It does not start another model or MCP server.
+
+Rel.AI checks the declared binary hash before installation.
+Rel.AI still controls local permissions and execution.
+
+Review the manifest before installation if you need to inspect the declared permissions or binary sources.
 
 ## Upstream
 
-OfficeCLI is developed by iOfficeAI:
+OfficeCLI is maintained by iOfficeAI:
 
 https://github.com/iOfficeAI/OfficeCLI
 
-This repository is an integration layer and is not the upstream OfficeCLI project.
+This repository is a Rel.AI integration.
+It is not the upstream OfficeCLI project.
