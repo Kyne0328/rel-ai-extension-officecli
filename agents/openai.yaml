@@ -1,0 +1,4 @@
+interface:
+  display_name: "OfficeCLI"
+  short_description: "Create, edit, validate, and visually review Office files with OfficeCLI."
+  default_prompt: "Use $officecli to work on this Word, Excel, or PowerPoint task through Rel.AI."
